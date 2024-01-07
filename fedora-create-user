@@ -1,0 +1,24 @@
+---
+- name: Create a new user on Fedora systems
+  hosts: fedora_hosts
+  become: yes
+  vars:
+    username: ansible
+    password: ansible
+    group: wheel  # Optional: 'wheel' group for sudo access. Remove or change as needed.
+
+  tasks:
+    - name: Ensure group "{{ group }}" exists
+      ansible.builtin.group:
+        name: "{{ group }}"
+        state: present
+      when: group is defined
+
+    - name: Create new user "{{ username }}"
+      ansible.builtin.user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"
+        groups: "{{ group }}"
+        append: yes
+        create_home: yes
+        shell: /bin/bash
